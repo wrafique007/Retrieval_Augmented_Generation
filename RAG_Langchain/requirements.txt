@@ -1,0 +1,10 @@
+docling
+ocrmac
+pyobjc-framework-Vision
+langchain
+langchain-classic
+langchain-docling
+langchain-huggingface
+langchain-milvus
+langchain-openai
+sentence-transformers

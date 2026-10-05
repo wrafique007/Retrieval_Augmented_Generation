@@ -35,7 +35,7 @@ load_dotenv()
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
-QUESTION = "Which are the main AI models in Docling?"
+QUESTION = "Provide me with the evaluation results and let me know which model have the best score?"
 
 # Chat Template to work with OpenAI compatible endpoint
 PROMPT = ChatPromptTemplate.from_messages([
@@ -125,18 +125,18 @@ llm = ChatOpenAI(
     api_key="not-needed",
     model="llama",
     temperature=0.1,
-    max_tokens=1024,
+    max_tokens=2048,
 )
 
 
-def clip_text(text, threshold=100):
+def clip_text(text, threshold=2048):
     return f"{text[:threshold]}..." if len(text) > threshold else text
 
 question_answer_chain = create_stuff_documents_chain(llm, PROMPT)
 rag_chain = create_retrieval_chain(retriever, question_answer_chain)
 resp_dict = rag_chain.invoke({"input": QUESTION})
 
-clipped_answer = clip_text(resp_dict["answer"], threshold=300)
+clipped_answer = clip_text(resp_dict["answer"], threshold=2048)
 print(f"Question:\n{resp_dict['input']}\n\nAnswer:\n{clipped_answer}")
 for i, doc in enumerate(resp_dict["context"]):
     print()

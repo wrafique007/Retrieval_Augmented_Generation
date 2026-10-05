@@ -18,7 +18,7 @@ def _get_env_from_colab_or_os(key):
     return os.getenv(key)
 
 HF_TOKEN = _get_env_from_colab_or_os("HF_TOKEN")
-FILE_PATH = ["https://arxiv.org/pdf/2408.09869"]  # Docling Technical Report
+FILE_PATH = ["https://arxiv.org/pdf/2508.18255"]  # Hermes 4 Technical Report
 EMBED_MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
 MAX_TOKENS=1024
 EXPORT_TYPE = ExportType.DOC_CHUNKS

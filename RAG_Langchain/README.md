@@ -22,6 +22,49 @@ A Retrieval-Augmented Generation (RAG) pipeline that ingests documents via [Docl
 
 ---
 
+## System Diagram
+
+```mermaid
+flowchart TD
+    %% ---------- Inputs ----------
+    A1([📄 PDF / URL Document]):::input
+    A2([❓ User Question]):::input
+
+    %% ---------- Ingestion Pipeline ----------
+    subgraph INGEST["① Ingestion Pipeline"]
+        direction TB
+        B1[DoclingLoader<br/><i>ExportType.DOC_CHUNKS</i>]:::step
+        B2[HybridChunker<br/><i>max_tokens = 1024</i>]:::step
+        B3[HuggingFaceEmbeddings<br/><i>all-MiniLM-L6-v2</i>]:::step
+        B4[(🗄️ Milvus Vector Store<br/><i>docling_langchain.db</i>)]:::store
+
+        B1 --> B2 --> B3 --> B4
+    end
+
+    %% ---------- Retrieval + Generation ----------
+    subgraph QUERY["② Query Pipeline"]
+        direction TB
+        C1[Retriever<br/><i>top-K = 3</i>]:::step
+        C2[ChatPromptTemplate<br/><i>context-grounded</i>]:::step
+        C3[ChatOpenAI LLM]:::step
+    end
+
+    %% ---------- Output ----------
+    Z([✅ Grounded Answer]):::output
+
+    %% ---------- Wiring ----------
+    A1 --> B1
+    A2 --> C1
+    B4 -. similarity search .-> C1
+    C1 --> C2 --> C3 --> Z
+
+    %% ---------- Styles ----------
+    classDef input   fill:#E3F2FD,stroke:#1565C0,stroke-width:2px,color:#0D47A1;
+    classDef step    fill:#FFF3E0,stroke:#EF6C00,stroke-width:2px,color:#E65100;
+    classDef store   fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#1B5E20;
+    classDef output  fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px,color:#4A148C;
+```
+
 ## Overview
 
 This project demonstrates a complete RAG workflow using LangChain as the orchestration framework. It loads documents (PDFs by default) with **DoclingLoader**, splits them into semantically meaningful chunks with **HybridChunker**, generates embeddings using a **Sentence-Transformers** model, stores them in a **Milvus** vector database, and then retrieves relevant context to answer user questions via a **ChatOpenAI** model.

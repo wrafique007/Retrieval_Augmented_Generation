@@ -1,6 +1,6 @@
-# RAG with LangChain and Docling
+# RAG with LangChain, Docling and LLama-server
 
-A Retrieval-Augmented Generation (RAG) pipeline that ingests documents via [Docling](https://github.com/DS4SD/docling), embeds them with HuggingFace models, stores vectors in [Milvus](https://milvus.io/), and answers queries using an OpenAI-compatible LLM through LangChain.
+A Retrieval-Augmented Generation (RAG) pipeline that ingests documents via [Docling](https://github.com/DS4SD/docling), embeds them with selected Embeddings models, stores vectors in [Milvus](https://milvus.io/), and answers queries using an OpenAI-compatible LLM through LangChain. Llama-server is being used to run a model locally (Qwen3-4B:Q8_0) as it exposes OpenAI compatible endpoint. Thus all of the RAG system runs locally and no private data leaves the laptop/system
 
 ---
 
@@ -67,7 +67,7 @@ flowchart TD
 
 ## Overview
 
-This project demonstrates a complete RAG workflow using LangChain as the orchestration framework. It loads documents (PDFs by default) with **DoclingLoader**, splits them into semantically meaningful chunks with **HybridChunker**, generates embeddings using a **Sentence-Transformers** model, stores them in a **Milvus** vector database, and then retrieves relevant context to answer user questions via a **ChatOpenAI** model.
+This project demonstrates a complete RAG workflow using LangChain as the orchestration framework. It loads documents (PDFs by default) with **DoclingLoader**, splits them into semantically meaningful chunks with **HybridChunker**, generates embeddings using a **Sentence-Transformers** model, stores them in a **Milvus** vector database, and then retrieves relevant context to answer user questions via a **ChatOpenAI** model through Llama-server because Llama-server runs a model locally (Qwen3-4B:Q8_0) and exposes OpenAI compatible endpoint which can be used by anyone to send queries to and get the reply.
 
 The entire pipeline is configurable through a single `config.py` file.
 
@@ -76,8 +76,8 @@ The entire pipeline is configurable through a single `config.py` file.
 ## Features
 
 - **Document ingestion with Docling** – uses `DoclingLoader` with `ExportType.DOC_CHUNKS` to extract structured text from PDFs.
-- **Hybrid chunking** – applies `HybridChunker` with a tokenizer based on `sentence-transformers/all-MiniLM-L6-v2` and a maximum of 1024 tokens per chunk.
-- **HuggingFace embeddings** – generates dense vector representations using `HuggingFaceEmbeddings`.
+- **Hybrid chunking** – applies `HybridChunker` with a tokenizer based on `sentence-transformers/all-MiniLM-L6-v2` and a maximum of 1024(configurable) tokens per chunk.
+- **HuggingFaceEmbeddings** – generates dense vector representations using `selected Embeddings model`.
 - **Milvus vector store** – persists embeddings in a local Milvus database file (`docling_langchain.db`).
 - **OpenAI-compatible LLM** – answers questions using `ChatOpenAI` with a custom prompt template that restricts responses to the retrieved context.
 - **Configurable via `config.py`** – all key parameters (file path, embedding model, token limit, top-K, etc.) are defined in one place.
@@ -118,7 +118,6 @@ DoclingLoader ──► HybridChunker ──► HuggingFaceEmbeddings
 - **Python 3.8+**
 - **API keys** (see [Configuration](#configuration)):
   - `HF_TOKEN` – HuggingFace token, if required by the embedding model.
-  - `OPENAI_API_KEY` – OpenAI or compatible API key for the LLM.
 - **Milvus** – the project uses a local file-based Milvus instance, so no separate server is required.
 - **Docling** – installs via `requirements.txt`, but external plugins for PDF processing may need additional system libraries.
 
@@ -174,7 +173,6 @@ Example `.env` file:
 
 ```env
 HF_TOKEN=your_huggingface_token
-OPENAI_API_KEY=your_openai_key
 ```
 
 ---
@@ -185,7 +183,6 @@ OPENAI_API_KEY=your_openai_key
 
    ```bash
    export HF_TOKEN="your_huggingface_token"
-   export OPENAI_API_KEY="your_openai_key"
    ```
 
 2. **Run the pipeline**:
@@ -205,7 +202,7 @@ OPENAI_API_KEY=your_openai_key
    The default question is:
 
    ```text
-   Which are the main AI models in Docling?
+   Provide me with the evaluation results and let me know which model have the best score?"
    ```
 
 3. **Customize the query**:

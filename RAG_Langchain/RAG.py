@@ -100,7 +100,14 @@ else:
 logger.info(f"\n\ndocling_langchain path is {MILVUS_URI}\n\n")
 
 # Create Embeddings and Ingest the document in vector database (Milvus)
-embedding = HuggingFaceEmbeddings(model_name=EMBED_MODEL_ID)
+embedding = HuggingFaceEmbeddings(
+    model_name=EMBED_MODEL_ID,
+    model_kwargs={
+        "device": "mps",
+    },
+    encode_kwargs={"normalize_embeddings": True}
+)
+
 
 start = time.perf_counter()
 vectorstore = Milvus.from_documents(

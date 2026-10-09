@@ -35,7 +35,7 @@ flowchart TD
         direction TB
         B1[DoclingLoader<br/><i>ExportType.DOC_CHUNKS</i>]:::step
         B2[HybridChunker<br/><i>max_tokens = 1024</i>]:::step
-        B3[HuggingFaceEmbeddings<br/><i>all-MiniLM-L6-v2</i>]:::step
+        B3[HuggingFaceEmbeddings<br/><i>EmbeddingGemma2</i>]:::step
         B4[(🗄️ Milvus Vector Store<br/><i>docling_langchain.db</i>)]:::store
 
         B1 --> B2 --> B3 --> B4
@@ -67,7 +67,7 @@ flowchart TD
 
 ## Overview
 
-This project demonstrates a complete RAG workflow using LangChain as the orchestration framework. It loads documents (PDFs by default) with **DoclingLoader**, splits them into semantically meaningful chunks with **HybridChunker**, generates embeddings using a **Sentence-Transformers** model, stores them in a **Milvus** vector database, and then retrieves relevant context to answer user questions via a **ChatOpenAI** model through Llama-server because Llama-server runs a model locally (Qwen3-4B:Q8_0) and exposes OpenAI compatible endpoint which can be used by anyone to send queries to and get the reply.
+This project demonstrates a complete RAG workflow using LangChain as the orchestration framework. It loads documents (PDFs by default) with **DoclingLoader**, splits them into semantically meaningful chunks with **HybridChunker**, generates embeddings using a **Transformers** model, stores them in a **Milvus** vector database, and then retrieves relevant context to answer user questions via a **ChatOpenAI** model through Llama-server because Llama-server runs a model locally (Qwen3-4B:Q8_0) and exposes OpenAI compatible endpoint which can be used by anyone to send queries to and get the reply.
 
 The entire pipeline is configurable through a single `config.py` file.
 
@@ -76,7 +76,7 @@ The entire pipeline is configurable through a single `config.py` file.
 ## Features
 
 - **Document ingestion with Docling** – uses `DoclingLoader` with `ExportType.DOC_CHUNKS` to extract structured text from PDFs.
-- **Hybrid chunking** – applies `HybridChunker` with a tokenizer based on `sentence-transformers/all-MiniLM-L6-v2` and a maximum of 1024(configurable) tokens per chunk.
+- **Hybrid chunking** – applies `HybridChunker` with a tokenizer based on `google/embeddinggemma-2` and a maximum of 1024(configurable) tokens per chunk.
 - **HuggingFaceEmbeddings** – generates dense vector representations using `selected Embeddings model`.
 - **Milvus vector store** – persists embeddings in a local Milvus database file (`docling_langchain.db`).
 - **OpenAI-compatible LLM** – answers questions using `ChatOpenAI` with a custom prompt template that restricts responses to the retrieved context.
@@ -161,7 +161,7 @@ All tunable parameters are defined in `config.py`:
 |----------|-------------|---------|
 | `HF_TOKEN` | HuggingFace token, loaded from environment or Colab secrets | `None` |
 | `FILE_PATH` | List of document paths or URLs to ingest | `["https://arxiv.org/pdf/2408.09869"]` |
-| `EMBED_MODEL_ID` | Sentence-Transformers model for embeddings | `"sentence-transformers/all-MiniLM-L6-v2"` |
+| `EMBED_MODEL_ID` | Transformers model for embeddings | `"google/embeddinggemma-2"` |
 | `MAX_TOKENS` | Maximum tokens per chunk | `1024` |
 | `EXPORT_TYPE` | Docling export type (`DOC_CHUNKS` or `MARKDOWN`) | `ExportType.DOC_CHUNKS` |
 | `TOP_K` | Number of chunks retrieved per query | `3` |
@@ -248,7 +248,7 @@ RAG_Langchain/
 ## Customization
 
 - **Change the document** – update `FILE_PATH` in `config.py` to point to your own PDF or URL.
-- **Switch embedding model** – replace `EMBED_MODEL_ID` with any Sentence-Transformers model.
+- **Switch embedding model** – replace `EMBED_MODEL_ID` with any Transformers model.
 - **Use a different LLM** – `ChatOpenAI` can be swapped for any LangChain-compatible chat model, such as `ChatAnthropic` or `Ollama`.
 - **Adjust retrieval depth** – modify `TOP_K` to retrieve more or fewer chunks.
 
@@ -273,4 +273,4 @@ This project is provided as-is for educational and demonstration purposes. See t
 - [Docling](https://github.com/DS4SD/docling) – document parsing and chunking.
 - [LangChain](https://www.langchain.com/) – RAG orchestration.
 - [Milvus](https://milvus.io/) – vector database.
-- [Sentence-Transformers](https://www.sbert.net/) – embedding models.
+- [EmbeddingGemma2](https://huggingface.co/google/embeddinggemma-2) – embedding models.

@@ -187,6 +187,10 @@ HF_TOKEN=your_huggingface_token
 
 2. **Run the pipeline**:
 
+    ```bash
+   llama-server --hf-repo ggml-org/Qwen3-4B-GGUF --hf-file Qwen3-4B-Q8_0.gguf -c 4096 -ngl 99
+   ```
+
    ```bash
    python RAG.py
    ```
